@@ -1,4 +1,5 @@
-module github.com/andybalholm/brotli
+module github.com/qydysky/brotli
+// module github.com/andybalholm/brotli
 
 go 1.21
 

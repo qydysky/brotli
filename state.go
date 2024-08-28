@@ -1,6 +1,8 @@
 package brotli
 
-import "io"
+import (
+	"io"
+)
 
 /* Copyright 2015 Google Inc. All Rights Reserved.
 
@@ -212,12 +214,12 @@ func decoderStateInit(s *Reader) bool {
 
 	s.sub_loop_counter = 0
 
-	s.literal_hgroup.codes = nil
-	s.literal_hgroup.htrees = nil
-	s.insert_copy_hgroup.codes = nil
-	s.insert_copy_hgroup.htrees = nil
-	s.distance_hgroup.codes = nil
-	s.distance_hgroup.htrees = nil
+	s.literal_hgroup.codes = s.literal_hgroup.codes[:0]
+	s.literal_hgroup.htrees = s.literal_hgroup.htrees[:0]
+	s.insert_copy_hgroup.codes = s.insert_copy_hgroup.codes[:0]
+	s.insert_copy_hgroup.htrees = s.insert_copy_hgroup.htrees[:0]
+	s.distance_hgroup.codes = s.distance_hgroup.codes[:0]
+	s.distance_hgroup.htrees = s.distance_hgroup.htrees[:0]
 
 	s.is_last_metablock = 0
 	s.is_uncompressed = 0
@@ -266,21 +268,23 @@ func decoderStateMetablockBegin(s *Reader) {
 	s.dist_context_map_slice = nil
 	s.dist_htree_index = 0
 	s.context_lookup = nil
-	s.literal_hgroup.codes = nil
-	s.literal_hgroup.htrees = nil
-	s.insert_copy_hgroup.codes = nil
-	s.insert_copy_hgroup.htrees = nil
-	s.distance_hgroup.codes = nil
-	s.distance_hgroup.htrees = nil
+
+	s.literal_hgroup.codes = s.literal_hgroup.codes[:0]
+	s.literal_hgroup.htrees = s.literal_hgroup.htrees[:0]
+	s.insert_copy_hgroup.codes = s.insert_copy_hgroup.codes[:0]
+	s.insert_copy_hgroup.htrees = s.insert_copy_hgroup.htrees[:0]
+	s.distance_hgroup.codes = s.distance_hgroup.codes[:0]
+	s.distance_hgroup.htrees = s.distance_hgroup.htrees[:0]
 }
 
 func decoderStateCleanupAfterMetablock(s *Reader) {
 	s.context_modes = nil
 	s.context_map = nil
 	s.dist_context_map = nil
-	s.literal_hgroup.htrees = nil
-	s.insert_copy_hgroup.htrees = nil
-	s.distance_hgroup.htrees = nil
+
+	s.literal_hgroup.htrees = s.literal_hgroup.htrees[:0]
+	s.insert_copy_hgroup.htrees = s.insert_copy_hgroup.htrees[:0]
+	s.distance_hgroup.htrees = s.distance_hgroup.htrees[:0]
 }
 
 func decoderHuffmanTreeGroupInit(s *Reader, group *huffmanTreeGroup, alphabet_size uint32, max_symbol uint32, ntrees uint32) bool {
@@ -288,7 +292,21 @@ func decoderHuffmanTreeGroupInit(s *Reader, group *huffmanTreeGroup, alphabet_si
 	group.alphabet_size = uint16(alphabet_size)
 	group.max_symbol = uint16(max_symbol)
 	group.num_htrees = uint16(ntrees)
-	group.htrees = make([][]huffmanCode, ntrees)
-	group.codes = make([]huffmanCode, (uint(ntrees) * max_table_size))
+	// group.htrees = make([][]huffmanCode, ntrees)
+	if ntrees > uint32(cap(group.htrees)) {
+		group.htrees = make([][]huffmanCode, ntrees)
+	} else {
+		group.htrees = group.htrees[:ntrees]
+	}
+	clear(group.htrees)
+
+	// group.codes = make([]huffmanCode, (uint(ntrees) * max_table_size))
+	if uint(ntrees)*max_table_size > uint(cap(group.codes)) {
+		group.codes = make([]huffmanCode, (uint(ntrees) * max_table_size))
+	} else {
+		group.codes = group.codes[:uint(ntrees)*max_table_size]
+	}
+	clear(group.codes)
+
 	return !(group.codes == nil)
 }

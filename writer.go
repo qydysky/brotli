@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/andybalholm/brotli/matchfinder"
+	"github.com/qydysky/brotli/matchfinder"
 )
 
 const (

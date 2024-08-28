@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andybalholm/brotli/matchfinder"
+	"github.com/qydysky/brotli/matchfinder"
 	"github.com/xyproto/randomstring"
 )
 
